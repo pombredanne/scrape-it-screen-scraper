@@ -57,28 +57,12 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.orientechnologies.orient.core.db.object.ODatabaseObjectTx;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.teamdev.jxbrowser.Browser;
-import com.teamdev.jxbrowser.BrowserFactory;
-import com.teamdev.jxbrowser.BrowserServices;
-import com.teamdev.jxbrowser.BrowserType;
-import com.teamdev.jxbrowser.Configurable;
-import com.teamdev.jxbrowser.Feature;
-import com.teamdev.jxbrowser.NavigationHistory;
-import com.teamdev.jxbrowser.dom.DOMDocument;
-import com.teamdev.jxbrowser.dom.DOMElement;
-import com.teamdev.jxbrowser.events.HistoryChangeListener;
-import com.teamdev.jxbrowser.events.NavigationEvent;
-import com.teamdev.jxbrowser.events.NavigationFinishedEvent;
-import com.teamdev.jxbrowser.events.NavigationListener;
-import com.teamdev.jxbrowser.mozilla.MozillaBrowser;
-import com.teamdev.jxbrowser.proxy.AuthenticationHandler;
-import com.teamdev.jxbrowser.proxy.ProxyConfig;
-import com.teamdev.jxbrowser.proxy.ProxyServer;
-import com.teamdev.jxbrowser.proxy.ProxyServerLogin;
-import com.teamdev.jxbrowser.proxy.ServerType;
-import com.teamdev.jxbrowser.script.ScriptErrorEvent;
-import com.teamdev.jxbrowser.script.ScriptErrorListener;
-import com.teamdev.jxbrowser.script.ScriptErrorWatcher;
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserFactory;
+import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+
+
 
 
 public class Scraper extends AbstractExecutionThreadService implements NavigationListener{
@@ -885,8 +869,15 @@ public class Scraper extends AbstractExecutionThreadService implements Navigatio
 	}
 
 	private void initvar() {
-		browser =  BrowserFactory.createBrowser(BrowserType.Mozilla);   
-		browser.addNavigationListener(this);
+		browser =  BrowserFactory.create();   
+		browser.addLoadListener(new LoadAdapter() {
+			@Override
+			public void onFinishLoadingFrame(FinishLoadingEvent event){
+				if (event.isMainFrame()){
+					//web page has loaded completely.
+				}
+			}
+		});
 
 		db = Global.db;
 		contentSettings = browser.getConfigurable();
